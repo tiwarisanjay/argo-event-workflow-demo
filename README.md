@@ -13,9 +13,19 @@ Secret are used to save your github token [ For Example as github webhook. (WIP)
         - [Argo Workflow](https://argoproj.github.io/argo-workflows/installation/)
 - There are two ways your can Open UI By Port forwarding or by NodePort(Minikube, Docker Desktop Kubernates)
     - Port Forwarding : 
-        - kubectl port-forward svc/argo-server 2746:2746 -n argo &
+        - `kubectl port-forward svc/argo-server 2746:2746 -n argo &`
     - Node Port:
-        - kubectl patch svc argo-server -n argo -p '{"spec": {"type": "NodePort"}}'
+        - `kubectl patch svc argo-server -n argo -p '{"spec": {"type": "NodePort"}}'`
+- After Open UI with 
+    - If port forwarded :
+        `https://localhost:2746`
+    - If Node Port 
+        `https://localhost:<NodePort>`
+- Get the Token for login and paste it in Token Area and login to UI. 
+    ```
+    ARGO_TOKEN="Bearer $(kubectl -n argo get secret $SECRET -o=jsonpath='{.data.token}' | base64 --decode)"
+    echo $ARGO_TOKEN
+    ```
 - Run Script for pre-requisites 
 ``` bash
 cd prerequisite 
