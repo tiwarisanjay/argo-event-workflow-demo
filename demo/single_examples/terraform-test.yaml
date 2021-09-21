@@ -1,0 +1,113 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: test-tf-
+  labels:
+    workflows.argoproj.io/archive-strategy: "false"
+spec:
+  entrypoint: full
+  serviceAccountName: workflows
+  templates:
+  - name: full
+    dag:
+      tasks:
+      - name: task-a
+        template: my-task
+        arguments:
+          parameters:
+          - name: message
+            value: This is task-a
+      - name: task-b
+        template: my-task
+        arguments:
+          parameters:
+          - name: message
+            value: This is task-b
+      - name: task-c
+        template: my-task
+        arguments:
+          parameters:
+          - name: message
+            value: This is task-c
+      - name: task-d
+        template: my-task
+        arguments:
+          parameters:
+          - name: message
+            value: This is task-d
+        dependencies:
+        - task-a
+      - name: task-e
+        template: my-task
+        arguments:
+          parameters:
+          - name: message
+            value: This is task-e
+        dependencies:
+        - task-a
+      - name: task-f
+        template: my-task
+        arguments:
+          parameters:
+          - name: message
+            value: This is task-f
+        dependencies:
+        - task-a
+        - task-e
+      - name: task-g
+        template: terraform-plan
+      - name: task-h
+        template: terraform-apply
+        dependencies:
+        - task-g
+  - name: my-task
+    inputs:
+      parameters:
+      - name: message
+    container:
+      image: alpine
+      command: [echo]
+      args:
+      - "{{inputs.parameters.message}}"
+  - name: terraform-plan
+    container:
+      image: hashicorp/terraform:latest
+      env:
+      - name: KUBERNETES_SERVICE_HOST
+        value: "https://kubernetes.docker.internal"
+      - name: KUBERNETES_SERVICE_PORT
+        value: "6443"
+      command: 
+      - /bin/sh
+      - -c 
+      - | 
+         git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
+         cd tf-create-k8-namepsace
+         terraform init
+         terraform plan
+  - name: terraform-apply
+    volumes:
+     - name: config-vol
+       configMap:
+         name: kube-context
+         items:
+           - key: config
+             path: config
+     - name: tfstat-vol
+       persistentVolumeClaim:
+        claimName: tf-storage-claim
+    container:
+      image: hashicorp/terraform:latest
+      volumeMounts:
+         - name: config-vol
+           mountPath: /etc/kube
+         - name: tfstat-vol
+           mountPath: /tmp/tfstat
+      command:
+      - /bin/sh
+      - -c
+      - |
+         git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
+         cd tf-create-k8-namepsace
+         terraform init
+         terraform apply -auto-approve

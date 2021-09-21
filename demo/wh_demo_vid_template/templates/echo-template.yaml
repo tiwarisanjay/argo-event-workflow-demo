@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: echo-test-template
+spec:
+  serviceAccountName: workflows
+  templates:
+    - name: echo-test-template
+      inputs:
+        parameters:
+          - name: message
+      container:
+        image: alpine
+        command: [echo]
+        args:
+          - "{{inputs.parameters.message}}"

@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: tf-version-template
+spec:
+  serviceAccountName: workflows
+  templates:
+    - name: tf-version-template 
+      container:
+        image: hashicorp/terraform:latest
+        command: 
+          - /bin/sh
+          - -c 
+          - |                       
+            terraform version 

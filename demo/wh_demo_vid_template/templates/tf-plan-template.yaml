@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: tf-plan-template
+spec:
+  serviceAccountName: workflows
+  templates:
+    - name: tf-plan-template
+      container:
+        image: hashicorp/terraform:latest
+        command: 
+            - /bin/sh
+            - -c 
+            - | 
+              git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
+              cd tf-create-k8-namepsace
+              terraform init
+              terraform plan

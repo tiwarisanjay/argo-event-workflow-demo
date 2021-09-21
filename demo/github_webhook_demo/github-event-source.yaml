@@ -1,0 +1,29 @@
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: github
+  namespace: argo-events 
+spec:
+  service:
+    ports:
+    - port: 12000
+      targetPort: 12000
+  github:
+    example:
+      owner: tiwarisanjay
+      repository: tf-create-k8-namepsace
+      webhook:
+        endpoint: /push #End or your webhook url It can be anything 
+        port: "12000"
+        method: POST
+        url: http://kubernetes.docker.internal
+      events:
+        - "*"
+      apiToken:
+        name: github-access
+        key: token
+      insecure: true
+      active: true
+      contentType: json

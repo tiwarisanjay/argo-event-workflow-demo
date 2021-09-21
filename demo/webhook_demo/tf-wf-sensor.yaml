@@ -1,0 +1,121 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: webhook
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+  - name: payload
+    eventSourceName: webhook
+    eventName: tf-toolkit
+  triggers:
+  - template:
+      name: payload
+      k8s:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: create
+          parameters:
+            - src:
+                dependencyName: payload
+                dataKey: body.message
+              dest: spec.templates.0.dag.tasks.0.arguments.parameters.0.value
+          source:
+            resource: #============== Terrafrom Workflow template
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: test-tf-
+                namespace: workflows
+                labels:
+                  workflows.argoproj.io/archive-strategy: "false"
+              spec:
+                entrypoint: full
+                serviceAccountName: workflows
+                templates:
+                - name: full
+                  dag:
+                    tasks:
+                    - name: task-echo
+                      template: echo-task
+                      arguments:
+                        parameters:
+                        - name: message
+                          value: Hello World
+                    - name: tf-version 
+                      template: terraform-version
+                    - name: tf-plan 
+                      template: terraform-plan
+                      dependencies:
+                      - tf-version
+                    - name: tf-apply 
+                      template: terraform-apply
+                      dependencies:
+                      - tf-plan
+                - name: echo-task
+                  inputs:
+                    parameters:
+                    - name: message
+                  container:
+                    image: alpine
+                    command: [echo]
+                    args:
+                    - "{{inputs.parameters.message}}"
+                - name: terraform-version
+                  container:
+                    image: hashicorp/terraform:latest
+                    env:
+                    - name: KUBERNETES_SERVICE_HOST
+                      value: "https://kubernetes.docker.internal"
+                    - name: KUBERNETES_SERVICE_PORT
+                      value: "6443"
+                    command: 
+                    - /bin/sh
+                    - -c 
+                    - |                       
+                      terraform version 
+                - name: terraform-plan
+                  container:
+                    image: hashicorp/terraform:latest
+                    env:
+                    - name: KUBERNETES_SERVICE_HOST
+                      value: "https://kubernetes.docker.internal"
+                    - name: KUBERNETES_SERVICE_PORT
+                      value: "6443"
+                    command: 
+                    - /bin/sh
+                    - -c 
+                    - | 
+                      git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
+                      cd tf-create-k8-namepsace
+                      terraform init
+                      terraform plan
+                - name: terraform-apply
+                  volumes:
+                  - name: config-vol
+                    configMap:
+                      name: kube-context
+                      items:
+                        - key: config
+                          path: config
+                  - name: tfstat-vol
+                    persistentVolumeClaim:
+                      claimName: tf-storage-claim
+                  container:
+                    image: hashicorp/terraform:latest
+                    volumeMounts:
+                      - name: config-vol
+                        mountPath: /etc/kube
+                      - name: tfstat-vol
+                        mountPath: /tmp/tfstat
+                    command:
+                    - /bin/sh
+                    - -c
+                    - |
+                      git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
+                      cd tf-create-k8-namepsace
+                      terraform init
+                      terraform apply -auto-approve
