@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tf-storage
+  namespace: workflows
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 60Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /tmp/tfstat
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tf-storage-claim
+  namespace: workflows
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Mi
