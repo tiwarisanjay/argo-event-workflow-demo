@@ -31,6 +31,6 @@ spec:
           - -c
           - |
             git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
-            cd tf-create-k8-namepsace
+            cd tf-create-k8-namepsace/{{inputs.parameters.nsname}}
             terraform init
-            terraform apply -auto-approve -var name="{{inputs.parameters.nsname}}"
+            terraform apply -auto-approve -var client="{{inputs.parameters.nsname}}"

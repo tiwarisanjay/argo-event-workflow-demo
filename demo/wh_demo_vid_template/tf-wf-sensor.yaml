@@ -57,7 +57,7 @@ spec:
                       arguments:
                         parameters:
                         - name: nsname 
-                          value: client1-ns 
+                          value: client1
                       templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
                         name: tf-plan-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
                         template: tf-plan-template # This is the name of the "template" you want to reference
@@ -68,7 +68,7 @@ spec:
                       arguments:
                         parameters:
                         - name: nsname 
-                          value: client1-ns 
+                          value: client1
                       templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
                         name: tf-apply-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
                         template: tf-apply-template # This is the name of the "template" you want to reference
@@ -84,7 +84,7 @@ spec:
                       arguments:
                         parameters:
                         - name: nsname 
-                          value: client2-ns 
+                          value: client2 
                       templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
                         name: tf-plan-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
                         template: tf-plan-template # This is the name of the "template" you want to reference
@@ -95,7 +95,7 @@ spec:
                       arguments:
                         parameters:
                         - name: nsname  
-                          value: client2-ns
+                          value: client2
                       templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
                         name: tf-apply-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
                         template: tf-apply-template # This is the name of the "template" you want to reference
