@@ -6,6 +6,9 @@ spec:
   serviceAccountName: workflows
   templates:
     - name: tf-plan-template
+      inputs:
+        parameters:
+          - name: nsname
       container:
         image: hashicorp/terraform:latest
         command: 
@@ -15,4 +18,4 @@ spec:
               git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
               cd tf-create-k8-namepsace
               terraform init
-              terraform plan
+              terraform plan -var name="{{inputs.parameters.nsname}}"

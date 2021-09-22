@@ -6,6 +6,9 @@ spec:
   serviceAccountName: workflows
   templates:
     - name: tf-apply-template
+      inputs:
+        parameters:
+          - name: nsname 
       volumes:
         - name: config-vol
           configMap:
@@ -30,4 +33,4 @@ spec:
             git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
             cd tf-create-k8-namepsace
             terraform init
-            terraform apply -auto-approve
+            terraform apply -auto-approve -var name="{{inputs.parameters.nsname}}"

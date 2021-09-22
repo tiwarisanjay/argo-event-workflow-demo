@@ -1,8 +1,5 @@
 #!/bin/bash
-echo "Creating Role and Rolebinding for workflows "
-kubectl apply -f sa-role-rb.yaml 
-echo "Creating PV and PVC for kube context."
-kubectl apply -f pv-pvc.yaml 
+kubectl apply -f rest_yaml/
 
 echo "Enter your GitHub Token :: "
 read GITHUB_SECRET
@@ -17,6 +14,6 @@ if [ ! -f ${HOME}/.kube/config  ];then
     echo "Kube Context file not present at ${HOME}/.kube/config . terraform will fail to create resources."
 else
     echo "Creating Config Map for context. Not recommended for production. "
-    kubectl create configmap kube-context -n workflows --from-file${HOME}/.kube/config 
+    kubectl create configmap kube-context -n workflows --from-file=${HOME}/.kube/config 
 fi 
 

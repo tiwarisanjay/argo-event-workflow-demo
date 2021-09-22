@@ -48,22 +48,57 @@ spec:
                         parameters:
                         - name: message
                           value: Hello World
-                    - name: tf-version 
+                    - name: tf-version-client1
                       templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
                         name: tf-version-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
                         template: tf-version-template # This is the name of the "template" you want to reference
                         clusterScope: true 
-                    - name: tf-plan  
+                    - name: tf-plan-client1
+                      arguments:
+                        parameters:
+                        - name: nsname 
+                          value: client1-ns 
                       templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
                         name: tf-plan-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
                         template: tf-plan-template # This is the name of the "template" you want to reference
                         clusterScope: true 
                       dependencies:
-                      - tf-version
-                    - name: tf-apply 
+                      - tf-version-client1
+                    - name: tf-apply-client1
+                      arguments:
+                        parameters:
+                        - name: nsname 
+                          value: client1-ns 
                       templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
                         name: tf-apply-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
                         template: tf-apply-template # This is the name of the "template" you want to reference
                         clusterScope: true 
                       dependencies:
-                      - tf-plan
+                      - tf-plan-client1
+                    - name: tf-version-client2
+                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
+                        name: tf-version-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
+                        template: tf-version-template # This is the name of the "template" you want to reference
+                        clusterScope: true 
+                    - name: tf-plan-client2
+                      arguments:
+                        parameters:
+                        - name: nsname 
+                          value: client2-ns 
+                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
+                        name: tf-plan-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
+                        template: tf-plan-template # This is the name of the "template" you want to reference
+                        clusterScope: true 
+                      dependencies:
+                      - tf-version-client2
+                    - name: tf-apply-client2
+                      arguments:
+                        parameters:
+                        - name: nsname  
+                          value: client2-ns
+                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
+                        name: tf-apply-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
+                        template: tf-apply-template # This is the name of the "template" you want to reference
+                        clusterScope: true 
+                      dependencies:
+                      - tf-plan-client2
