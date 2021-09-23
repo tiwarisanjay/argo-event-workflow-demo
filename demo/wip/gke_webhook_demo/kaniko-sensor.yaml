@@ -1,0 +1,56 @@
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: kaniko-sensor
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: event-toolkit-sa
+  dependencies:
+  - name: kaniko-payload
+    eventSourceName: event-source
+    eventName: kaniko-event
+  triggers:
+  - template:
+      name: trigger
+      argoWorkflow:
+        group: argoproj.io
+        version: v1alpha1
+        resource: workflows
+        operation: submit
+        source:
+          resource:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: argo-kaniko-build-
+              namespace: argo-events
+            spec:
+              entrypoint: build
+              serviceAccountName: event-toolkit-sa
+              volumes:
+              - name: regcred
+                secret:
+                  secretName: regcred
+                  items:
+                    - key: .dockerconfigjson
+                      path: config.json
+              templates:
+              - name: build
+                dag:
+                  tasks:
+                  - name: build
+                    templateRef:
+                      name: container-image
+                      template: build-kaniko-template
+                      clusterScope: true
+                    arguments:
+                      parameters:
+                      - name: app_repo
+                        value: git@github.com:tiwarisanjay/docker-hello-world.git
+                      - name: container_image
+                        value: tiwarisanjay/bhiya-ram
+                      - name: container_tag
+                        value: "1.0.0"

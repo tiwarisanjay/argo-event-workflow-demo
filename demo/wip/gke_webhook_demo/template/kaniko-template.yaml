@@ -4,7 +4,7 @@ metadata:
   name: container-image
 spec:
   templates:
-  - name: build-kaniko-git
+  - name: build-kaniko-template
     inputs:
       parameters:
       - name: app_repo

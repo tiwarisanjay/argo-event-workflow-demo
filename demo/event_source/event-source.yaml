@@ -21,3 +21,7 @@ spec:
       port: "13000"
       endpoint: /hello-world
       method: POST
+    kaniko-event:
+      port: "13000"
+      endpoint: /kaniko-event
+      method: POST
