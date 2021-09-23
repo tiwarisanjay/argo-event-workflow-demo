@@ -1,3 +1,4 @@
 
 prerequisite/configmap-k8.yaml
 prerequisite/github-secret.yaml
+.DS_Store

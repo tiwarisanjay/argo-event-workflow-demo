@@ -1,4 +1,20 @@
 # argo-event-workflow-demo
+# Using MacBook & DockerDesktop Kubernates. You dont need anything but to run following script for everything
+- ### Script will Install Argo Event & Argo Workflow and it will run the hello world. #####
+- Clone the repo 
+```
+ git clone https://github.com/tiwarisanjay/argo-event-workflow-demo.git
+
+```
+- Run Script : 
+```
+cd argo-event-workflow-demo
+./end_to_end.sh 
+```
+# Not using Docker Desktop and MacBook 
+- ### Most of the Stuff were tested on Mac or Ubuntu. #####
+- ### NOTE : You might have to find your own way of doing things with Windows for some of the scripts #####
+
 ```
 This demo is to create a sample CICD using Argo Event and Argo Demo.
 We are using terraform to create one namespace. 
@@ -26,101 +42,53 @@ Secret are used to save your github token [ For Example as github webhook. (WIP)
     - Argo WOrkflow
         ```
             kubectl get all -n argo
-                NAME                                      READY   STATUS    RESTARTS   AGE
-                pod/argo-server-5d58f6585d-sz59s          1/1     Running   3          48m
-                pod/minio-77d6796f8d-8kzw7                1/1     Running   0          48m
-                pod/postgres-546d9d68b-fk78m              1/1     Running   0          48m
-                pod/workflow-controller-558db44f7-hvfrw   1/1     Running   3          48m
+                NAME                                       READY   STATUS    RESTARTS   AGE
+                pod/argo-server-d8ff9d9c8-tw4s4            0/1     Running   0          8s
+                pod/workflow-controller-67dcb4d8b7-hbdpr   1/1     Running   0          8s
 
-                NAME                                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
-                service/argo-server                   NodePort    10.109.246.11    <none>        2746:30736/TCP   48m
-                service/minio                         ClusterIP   10.102.155.241   <none>        9000/TCP         48m
-                service/postgres                      ClusterIP   10.105.198.98    <none>        5432/TCP         48m
-                service/workflow-controller-metrics   ClusterIP   10.107.181.197   <none>        9090/TCP         48m
+                NAME                                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+                service/argo-server                   ClusterIP   10.107.198.95   <none>        2746/TCP   8s
+                service/workflow-controller-metrics   ClusterIP   10.111.245.42   <none>        9090/TCP   8s
 
                 NAME                                  READY   UP-TO-DATE   AVAILABLE   AGE
-                deployment.apps/argo-server           1/1     1            1           48m
-                deployment.apps/minio                 1/1     1            1           48m
-                deployment.apps/postgres              1/1     1            1           48m
-                deployment.apps/workflow-controller   1/1     1            1           48m
+                deployment.apps/argo-server           0/1     1            0           8s
+                deployment.apps/workflow-controller   1/1     1            1           8s
 
-                NAME                                            DESIRED   CURRENT   READY   AGE
-                replicaset.apps/argo-server-5d58f6585d          1         1         1       48m
-                replicaset.apps/minio-77d6796f8d                1         1         1       48m
-                replicaset.apps/postgres-546d9d68b              1         1         1       48m
-                replicaset.apps/workflow-controller-558db44f7   1         1         1       48m
+                NAME                                             DESIRED   CURRENT   READY   AGE
+                replicaset.apps/argo-server-d8ff9d9c8            1         1         0       8s
+                replicaset.apps/workflow-controller-67dcb4d8b7   1         1         1       8s
         ```
     - Argo Events 
         ```
         kubectl get all -n argo-events
             NAME                                          READY   STATUS    RESTARTS   AGE
-            pod/eventbus-controller-7494ccf7c7-9gz76      1/1     Running   0          49m
-            pod/eventbus-default-stan-0                   2/2     Running   0          48m
-            pod/eventbus-default-stan-1                   2/2     Running   0          48m
-            pod/eventbus-default-stan-2                   2/2     Running   0          48m
-            pod/events-webhook-77c6c47dd6-kv5bd           1/1     Running   0          49m
-            pod/eventsource-controller-5665446686-nm6sz   1/1     Running   0          49m
-            pod/sensor-controller-6cf84c4564-ln5hf        1/1     Running   0          49m
+            pod/eventbus-controller-7494ccf7c7-mc7hw      1/1     Running   0          60s
+            pod/eventbus-default-stan-0                   2/2     Running   0          51s
+            pod/eventbus-default-stan-1                   2/2     Running   0          48s
+            pod/eventbus-default-stan-2                   2/2     Running   0          45s
+            pod/events-webhook-77c6c47dd6-kmlrx           1/1     Running   0          59s
+            pod/eventsource-controller-5665446686-xfr7k   1/1     Running   0          60s
+            pod/sensor-controller-6cf84c4564-l7xwk        1/1     Running   0          60s
 
-            NAME                                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
-            service/eventbus-default-stan-svc   ClusterIP   None            <none>        4222/TCP,6222/TCP,8222/TCP   48m
-            service/events-webhook              ClusterIP   10.111.194.79   <none>        443/TCP                      49m
+            NAME                                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+            service/eventbus-default-stan-svc   ClusterIP   None             <none>        4222/TCP,6222/TCP,8222/TCP   51s
+            service/events-webhook              ClusterIP   10.109.159.244   <none>        443/TCP                      59s
 
             NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
-            deployment.apps/eventbus-controller      1/1     1            1           49m
-            deployment.apps/events-webhook           1/1     1            1           49m
-            deployment.apps/eventsource-controller   1/1     1            1           49m
-            deployment.apps/sensor-controller        1/1     1            1           49m
+            deployment.apps/eventbus-controller      1/1     1            1           60s
+            deployment.apps/events-webhook           1/1     1            1           59s
+            deployment.apps/eventsource-controller   1/1     1            1           60s
+            deployment.apps/sensor-controller        1/1     1            1           60s
 
             NAME                                                DESIRED   CURRENT   READY   AGE
-            replicaset.apps/eventbus-controller-7494ccf7c7      1         1         1       49m
-            replicaset.apps/events-webhook-77c6c47dd6           1         1         1       49m
-            replicaset.apps/eventsource-controller-5665446686   1         1         1       49m
-            replicaset.apps/sensor-controller-6cf84c4564        1         1         1       49m
+            replicaset.apps/eventbus-controller-7494ccf7c7      1         1         1       60s
+            replicaset.apps/events-webhook-77c6c47dd6           1         1         1       59s
+            replicaset.apps/eventsource-controller-5665446686   1         1         1       60s
+            replicaset.apps/sensor-controller-6cf84c4564        1         1         1       60s
 
             NAME                                     READY   AGE
-            statefulset.apps/eventbus-default-stan   3/3     48m
+            statefulset.apps/eventbus-default-stan   3/3     51s
         ```
-    - Argo CD
-        ```
-        kubectl get all -n argocd
-            NAME                                      READY   STATUS    RESTARTS   AGE
-            pod/argocd-application-controller-0       1/1     Running   0          50m
-            pod/argocd-dex-server-5dc4df4967-6qpqc    1/1     Running   0          50m
-            pod/argocd-redis-5b6967fdfc-j67v2         1/1     Running   0          50m
-            pod/argocd-repo-server-5f9b5d9584-7h487   1/1     Running   0          50m
-            pod/argocd-server-86dcc9f88f-mm8w2        1/1     Running   0          50m
-
-            NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
-            service/argocd-dex-server       ClusterIP   10.103.98.154    <none>        5556/TCP,5557/TCP,5558/TCP   50m
-            service/argocd-metrics          ClusterIP   10.99.141.227    <none>        8082/TCP                     50m
-            service/argocd-redis            ClusterIP   10.104.80.245    <none>        6379/TCP                     50m
-            service/argocd-repo-server      ClusterIP   10.101.96.22     <none>        8081/TCP,8084/TCP            50m
-            service/argocd-server           NodePort    10.104.138.12    <none>        80:32668/TCP,443:32751/TCP   50m
-            service/argocd-server-metrics   ClusterIP   10.106.102.160   <none>        8083/TCP                     50m
-
-            NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
-            deployment.apps/argocd-dex-server    1/1     1            1           50m
-            deployment.apps/argocd-redis         1/1     1            1           50m
-            deployment.apps/argocd-repo-server   1/1     1            1           50m
-            deployment.apps/argocd-server        1/1     1            1           50m
-
-            NAME                                            DESIRED   CURRENT   READY   AGE
-            replicaset.apps/argocd-dex-server-5dc4df4967    1         1         1       50m
-            replicaset.apps/argocd-redis-5b6967fdfc         1         1         1       50m
-            replicaset.apps/argocd-repo-server-5f9b5d9584   1         1         1       50m
-            replicaset.apps/argocd-server-86dcc9f88f        1         1         1       50m
-
-            NAME                                             READY   AGE
-            statefulset.apps/argocd-application-controller   1/1     50m
-
-        ```
-- Get the Token for login and paste it in Token Area and login to UI. 
-    ```
-    SECRET=$(kubectl -n argo get sa argo-server -o=jsonpath='{.secrets[0].name}')
-    ARGO_TOKEN="Bearer $(kubectl -n argo get secret $SECRET -o=jsonpath='{.data.token}' | base64 --decode)"
-    echo $ARGO_TOKEN
-    ```
 - Run Script for pre-requisites 
 ``` bash
 cd prerequisite 
@@ -134,7 +102,47 @@ cd prerequisite
     - role and role binding for workflow service account 
 
 
-# We have Multiple demos. 
-## StandAlone Workflow
-## Argo Workflow trigger via webhook of Argo Event 
-## Argo Workflow using Webhook template triggered via webhook of argo events
+
+# Hello World Workflow
+- To Create Hello World Demo 
+```bash 
+#Create Event 
+kubectl apply -f demo/event_source/event-source.yaml
+#Check for Deployemnt "event-source-eventsource-" , Namespce : argo-events
+# "Patch Servcie to NodePort "
+kubectl patch svc event-source-eventsource-svc -n argo-events -p '{"spec": {"type": "NodePort"}}'
+#=======================================
+#Create Sensor with workflow
+kubectl apply -f demo/hello_world_webhook/hello-world-sensor.yaml
+#Validate if deployment is ready 
+#Name will be like :: hello-world-webhook-sensor-* , NameSpace:: argo-events
+
+# "Create the Workflow by hitting URL...."
+PORT=`kubectl get svc event-source-eventsource-svc -n argo-events -o=jsonpath='{.spec.ports[0].nodePort}'`
+curl -d '{"message":"Bhiya Ram!!"}' -H "Content-Type: application/json" -X POST http://localhost:${PORT}/hello-world 
+
+# "List All the workflows..."
+argo list -n workflows 
+
+# "Run following command to get status of workflow listed..."
+#  argo get <workflow> -n workflows
+#  Ex : argo get hello-world-prmcz -n workflows"
+```
+<!-- ## Argo Workflow trigger via webhook of Argo Event 
+## Argo Workflow using Webhook template triggered via webhook of argo events -->
+## Login to Argo Workflow UI to check the workflow 
+- Get the Token for login and paste it in Token Area and login to UI. 
+    ```
+    SECRET=$(kubectl -n argo get sa argo-server -o=jsonpath='{.secrets[0].name}')
+    ARGO_TOKEN="Bearer $(kubectl -n argo get secret $SECRET -o=jsonpath='{.data.token}' | base64 --decode)"
+    echo $ARGO_TOKEN
+    ```
+- Run following command to get UI URL if you are running with NodePort : 
+```
+WHPORT=`kubectl get svc argo-server -n argo -o=jsonpath='{.spec.ports[0].nodePort}'`
+echo "URL :: https://localhost:${WHPORT}"
+```
+- Use Token for Login : 
+![Alt text](images/SS1.png?raw=true "Login Page")
+- Check Hello World Workflow 
+![Alt text](images/SS2.png?raw=true "After Login")

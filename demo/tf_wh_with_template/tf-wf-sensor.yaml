@@ -1,15 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: webhook
+  name: tf-wf-sensor-webhook
   namespace: argo-events
 spec:
   template:
     serviceAccountName: argo-events-sa
   dependencies:
   - name: payload
-    eventSourceName: webhook
-    eventName: tf-toolkit
+    eventSourceName: event-source
+    eventName: template-tf
   triggers:
   - template:
       name: payload

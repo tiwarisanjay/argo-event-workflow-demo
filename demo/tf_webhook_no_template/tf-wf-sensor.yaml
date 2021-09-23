@@ -1,15 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: webhook
+  name: tf-webhook-no-template
   namespace: argo-events
 spec:
   template:
     serviceAccountName: argo-events-sa
   dependencies:
   - name: payload
-    eventSourceName: webhook
-    eventName: tf-toolkit
+    eventSourceName: event-source
+    eventName: nontemplate-tf
   triggers:
   - template:
       name: payload
@@ -28,7 +28,7 @@ spec:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                generateName: test-tf-
+                generateName: no-template-tf-
                 namespace: workflows
                 labels:
                   workflows.argoproj.io/archive-strategy: "false"

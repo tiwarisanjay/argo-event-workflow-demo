@@ -1,0 +1,5 @@
+#Create Namespace for workflow to run
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workflows

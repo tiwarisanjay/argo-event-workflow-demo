@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: event-source 
+  namespace: argo-events
+spec:
+  service:
+    ports:
+      - port: 13000
+        targetPort: 13000
+  webhook:
+    template-tf:
+      port: "13000"
+      endpoint: /template-tf
+      method: POST
+    nontemplate-tf:
+      port: "13000"
+      endpoint: /nontemplate-tf
+      method: POST
+    hello-world:
+      port: "13000"
+      endpoint: /hello-world
+      method: POST

@@ -1,0 +1,62 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: hello-world-webhook
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+  - name: payload
+    eventSourceName: event-source
+    eventName: hello-world
+  triggers:
+  - template:
+      name: payload
+      k8s:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: create
+          parameters:
+            - src:
+                dependencyName: payload
+                dataKey: body.message
+              dest: spec.templates.0.dag.tasks.0.arguments.parameters.0.value
+          source:
+            resource: #============== Terrafrom Workflow template
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: hello-world-
+                namespace: workflows
+                labels:
+                  workflows.argoproj.io/archive-strategy: "false"
+              spec:
+                entrypoint: full
+                serviceAccountName: workflows
+                templates:
+                - name: full
+                  dag:
+                    tasks:
+                    - name: echo-task-1
+                      template: echo-task
+                      arguments:
+                        parameters:
+                        - name: message
+                          value: Hello World
+                    - name: echo-task-2
+                      template: echo-task
+                      arguments:
+                        parameters:
+                        - name: message
+                          value: Hello World
+                - name: echo-task
+                  inputs:
+                    parameters:
+                    - name: message
+                  container:
+                    image: alpine
+                    command: [echo]
+                    args:
+                    - "{{inputs.parameters.message}}"
