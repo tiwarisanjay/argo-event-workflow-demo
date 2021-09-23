@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  shareProcessNamespace: true
+  containers:
+  - name: test
+    image: argoproj/argoexec:v3.1.11
+    command:
+     - /bin/sh
+     - -c 
+     - |
+        sleep 300
+  - name: shell
+    image: argoproj/argoexec:v3.1.11
+    command:
+     - /bin/sh
+     - -c
+     - |
+        sleep 300
+    securityContext:
+      capabilities:
+        add:
+        - SYS_PTRACE
+    stdin: true
+    tty: true

@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: build-container-image-
+  namespace: argo-events
+  labels:
+    workflows.argoproj.io/archive-strategy: "false"
+spec:
+  entrypoint: build
+  serviceAccountName: argo-events-sa
+  volumes:
+  - name: kaniko-secret
+    secret:
+      secretName: regcred
+      items:
+        - key: .dockerconfigjson
+          path: config.json
+  templates:
+  - name: build
+    dag:
+      tasks:
+      - name: build
+        templateRef:
+          name: container-image
+          template: build-kaniko-git
+          clusterScope: true
+        arguments:
+          parameters:
+          - name: app_repo
+            value: git@github.com:tiwarisanjay/docker-hello-world.git
+          - name: container_image
+            value: tiwarisanjay/bhiya-ram
+          - name: container_tag
+            value: "1.0.0"
