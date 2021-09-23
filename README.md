@@ -23,11 +23,16 @@ Secret are used to save your github token [ For Example as github webhook. (WIP)
 ```
 ## Pre-requisites 
 - Install ArgoEvent and Argo Workflow before starting. 
-    - Install using [repo](https://github.com/tiwarisanjay/argo-install-all)
-    - Install by running a script : 
-    - Or Install Manually one by one using 
-        - [Argo Events](https://argoproj.github.io/argo-events/installation/)
-        - [Argo Workflow](https://argoproj.github.io/argo-workflows/installation/)
+    - Run following Command to Install Argo Workflow and Events 
+    ```bash 
+        kubectl apply -f prerequisite/argo-install-all/argo-event-yamls/1_event.yaml
+        kubectl apply -f prerequisite/argo-install-all/argo-event-yamls/2_native.yaml
+        kubectl apply -f prerequisite/argo-install-all/argo-event-yamls/3_eventbus.yaml
+        # Install Workflow
+        kubectl apply -f prerequisite/argo-install-all/argo-wf-yamls/
+    ```
+    - Run Command Again if you see any error as Namespace might be created later. 
+    
 - There are two ways your can Open UI By Port forwarding or by NodePort(Minikube, Docker Desktop Kubernates)
     - Port Forwarding : 
         - `kubectl port-forward svc/argo-server 2746:2746 -n argo &`
@@ -38,7 +43,7 @@ Secret are used to save your github token [ For Example as github webhook. (WIP)
         `https://localhost:2746`
     - If Node Port 
         `https://localhost:<NodePort>`
-- Services After Install : 
+- Resources After Install : 
     - Argo WOrkflow
         ```
             kubectl get all -n argo
@@ -89,7 +94,7 @@ Secret are used to save your github token [ For Example as github webhook. (WIP)
             NAME                                     READY   AGE
             statefulset.apps/eventbus-default-stan   3/3     51s
         ```
-- Run Script for pre-requisites 
+- Run Script for pre-requisites. Run all commands manually if you are running it on windows
 ``` bash
 cd prerequisite 
 ./createrest.sh 
