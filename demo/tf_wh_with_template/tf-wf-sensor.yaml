@@ -36,7 +36,7 @@ spec:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                generateName: test-tf-
+                generateName: terraform-workflow-
                 namespace: workflows
                 labels:
                   workflows.argoproj.io/archive-strategy: "false"
