@@ -7,22 +7,30 @@ spec:
   template:
     serviceAccountName: argo-events-sa
   dependencies:
-  - name: payload
-    eventSourceName: event-source
-    eventName: template-tf
+    - name: terraform-workflow
+      eventSourceName: event-source
+      eventName: template-tf
   triggers:
-  - template:
-      name: payload
-      k8s:
+    - template:
+        name: terraform-wf-template
+        k8s:
           group: argoproj.io
           version: v1alpha1
           resource: workflows
           operation: create
           parameters:
             - src:
-                dependencyName: payload
+                dependencyName: terraform-workflow
+                dataKey: body.repository.git_url
+              dest: spec.templates.1.inputs.parameters.0.value
+            - src:
+                dependencyName: terraform-workflow
+                dataKey: body.repository.name
+              dest: spec.templates.1.inputs.parameters.1.value
+            - src:
+                dependencyName: terraform-workflow
                 dataKey: body.message
-              dest: spec.templates.0.dag.tasks.0.arguments.parameters.0.value
+              dest: spec.templates.0.inputs.parameters.0.value
           source:
             resource: #============== Terrafrom Workflow template
               apiVersion: argoproj.io/v1alpha1
@@ -33,72 +41,92 @@ spec:
                 labels:
                   workflows.argoproj.io/archive-strategy: "false"
               spec:
-                entrypoint: full
+                entrypoint: tf-flow
                 serviceAccountName: workflows
                 templates:
-                - name: full
-                  dag:
-                    tasks:
-                    - name: task-echo
-                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
-                        name: echo-test-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
-                        template: echo-test-template # This is the name of the "template" you want to reference
-                        clusterScope: true 
-                      arguments:
-                        parameters:
+                  - name: tf-flow
+                    inputs:
+                      parameters:
                         - name: message
-                          value: Hello World
-                    - name: tf-version-client1
-                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
-                        name: tf-version-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
-                        template: tf-version-template # This is the name of the "template" you want to reference
-                        clusterScope: true 
-                    - name: tf-plan-client1
-                      arguments:
-                        parameters:
-                        - name: nsname 
-                          value: client1
-                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
-                        name: tf-plan-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
-                        template: tf-plan-template # This is the name of the "template" you want to reference
-                        clusterScope: true 
-                      dependencies:
-                      - tf-version-client1
-                    - name: tf-apply-client1
-                      arguments:
-                        parameters:
-                        - name: nsname 
-                          value: client1
-                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
-                        name: tf-apply-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
-                        template: tf-apply-template # This is the name of the "template" you want to reference
-                        clusterScope: true 
-                      dependencies:
-                      - tf-plan-client1
-                    - name: tf-version-client2
-                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
-                        name: tf-version-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
-                        template: tf-version-template # This is the name of the "template" you want to reference
-                        clusterScope: true 
-                    - name: tf-plan-client2
-                      arguments:
-                        parameters:
-                        - name: nsname 
-                          value: client2 
-                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
-                        name: tf-plan-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
-                        template: tf-plan-template # This is the name of the "template" you want to reference
-                        clusterScope: true 
-                      dependencies:
-                      - tf-version-client2
-                    - name: tf-apply-client2
-                      arguments:
-                        parameters:
-                        - name: nsname  
-                          value: client2
-                      templateRef:                  # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
-                        name: tf-apply-template   # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
-                        template: tf-apply-template # This is the name of the "template" you want to reference
-                        clusterScope: true 
-                      dependencies:
-                      - tf-plan-client2
+                          value: Hello World 
+                    dag:
+                      tasks:
+                        - name: task-echo # Echo Task
+                          templateRef: # You can reference a "template" from another "WorkflowTemplate or ClusterWorkflowTemplate" using this field
+                            name: echo-test-template # This is the name of the "WorkflowTemplate or ClusterWorkflowTemplate" CRD that contains the "template" you want
+                            template: echo-test-template # This is the name of the "template" you want to reference
+                            clusterScope: true
+                          arguments:
+                            parameters:
+                              - name: message
+                                value: "{{inputs.parameters.message}}"
+                        # CHECK TERRAFORM VERSION ON GIVEN IMAGE
+                        - name: tf-version # Check Terraform Version
+                          templateRef:
+                            name: tf-version-template
+                            template: tf-version-template
+                            clusterScope: true
+                        #Create a helm loop to get all teh clients
+                        - name: client1-process
+                          template: nested-tf-flow
+                          arguments:
+                            parameters:
+                              - name: client
+                                value: client1
+                        - name: client2-process
+                          template: nested-tf-flow
+                          arguments:
+                            parameters:
+                              - name: client
+                                value: client2
+                  #==========================================
+                  ## Netsted TF Flow to process all cilents
+                  #==========================================
+                  - name: nested-tf-flow
+                    inputs:
+                      parameters:
+                        - name: repo_url
+                          value: ""
+                        - name: repo_name
+                          value: ""
+                        - name: client
+                    dag:
+                      tasks:
+                        #  TERRAFORM PLAN
+                        - name: tf-plan # Terraform Plan
+                          arguments:
+                            parameters:
+                              - name: nsname
+                                value: "{{inputs.parameters.client}}"
+                              - name: repo_url
+                                value: "{{inputs.parameters.repo_url}}"
+                              - name: repo_name
+                                value: "{{inputs.parameters.repo_name}}"
+                          templateRef:
+                            name: tf-plan-template
+                            template: tf-plan-template
+                            clusterScope: true
+                        # Approve the terraform apply or keep suspended
+                        - name: tf-approve
+                          templateRef:
+                            name: approval-template
+                            template: approve
+                            clusterScope: true
+                          dependencies:
+                            - tf-plan
+                        # TERRAFORM APPLY
+                        - name: tf-apply # Terraform apply
+                          arguments:
+                            parameters:
+                              - name: nsname
+                                value: "{{inputs.parameters.client}}"
+                              - name: repo_url
+                                value: "{{inputs.parameters.repo_url}}"
+                              - name: repo_name
+                                value: "{{inputs.parameters.repo_name}}"
+                          templateRef:
+                            name: tf-apply-template
+                            template: tf-apply-template
+                            clusterScope: true
+                          dependencies:
+                            - tf-approve

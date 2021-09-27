@@ -9,13 +9,15 @@ spec:
       inputs:
         parameters:
           - name: nsname
+          - name: repo_url 
+          - name: repo_name
       container:
         image: hashicorp/terraform:latest
         command: 
             - /bin/sh
             - -c 
             - | 
-              git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
-              cd tf-create-k8-namepsace/{{inputs.parameters.nsname}}
+              git clone {{inputs.parameters.repo_url}}
+              cd {{inputs.parameters.repo_name}}/{{inputs.parameters.nsname}}
               terraform init
               terraform plan -var client="{{inputs.parameters.nsname}}"

@@ -9,6 +9,8 @@ spec:
       inputs:
         parameters:
           - name: nsname 
+          - name: repo_url 
+          - name: repo_name
       volumes:
         - name: config-vol
           configMap:
@@ -30,7 +32,7 @@ spec:
           - /bin/sh
           - -c
           - |
-            git clone https://github.com/tiwarisanjay/tf-create-k8-namepsace.git
-            cd tf-create-k8-namepsace/{{inputs.parameters.nsname}}
+            git clone {{inputs.parameters.repo_url}}
+            cd {{inputs.parameters.repo_name}}/{{inputs.parameters.nsname}}
             terraform init
             terraform apply -auto-approve -var client="{{inputs.parameters.nsname}}"

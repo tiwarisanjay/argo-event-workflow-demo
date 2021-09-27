@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: dag-nested-
+spec:
+  entrypoint: diamond
+  templates:
+  - name: echo
+    inputs:
+      parameters:
+      - name: message
+    container:
+      image: alpine:3.7
+      command: [echo, "{{inputs.parameters.message}}"]
+  - name: diamond
+    dag:
+      tasks:
+      - name: step1 
+        template: nested-diamond
+        arguments:
+          parameters: [{name: client, value: first}]
+      - name: B
+        depends: "A"
+        template: nested-diamond
+        arguments:
+          parameters: [{name: client, value: second}]
+  - name: nested-diamond
+    inputs:
+      parameters:
+      - name: client
+    dag:
+      tasks:
+      - name: client-"{{input.parameters.client}}"
+        template: echo
+        arguments:
+          parameters: [{name: message, value: "{{inputs.parameters.message}}A"}]
+      - name: B
+        depends: "A"
+        template: echo
+        arguments:
+          parameters: [{name: message, value: "{{inputs.parameters.message}}B"}]
+      - name: C
+        depends: "A"
+        template: echo
+        arguments:
+          parameters: [{name: message, value: "{{inputs.parameters.message}}C"}]
+      - name: D
+        depends: "B && C"
+        template: echo
+        arguments:
+          parameters: [{name: message, value: "{{inputs.parameters.message}}D"}]
